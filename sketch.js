@@ -8,11 +8,12 @@ var cacto;
 var c1, c2, c3, c4, c5, c6; 
 var spike;
 var sky;
-var PLAY = 1
-var END = 0
-var gamestate = PLAY
-var  gameOver
-var trexCo
+var PLAY = 1;
+var END = 0;
+var gamestate = PLAY;
+var  gameOver;
+var trexCo;
+var pontos=0;
 
 function preload(){
   trex_running = loadAnimation("trex1.png","trex3.png","trex4.png");
@@ -24,28 +25,35 @@ c3 = loadImage("obstacle3.png");
 c4 = loadImage("obstacle4.png");
 c5 = loadImage("obstacle5.png");
 c6 = loadImage("obstacle6.png");
-trexCo = loadImage("trex_colçided.png");
+trexCo = loadImage("trex_collided.png");
 gameOver = loadImage("gameOver.png");
 
 }
 
 function setup(){
+  //criando a tela
   createCanvas(600,200);
-  
+
   //criando o trex
   trex = createSprite(50,160,20,50);
   trex.addAnimation("running", trex_running);
-  edges = createEdgeSprites();
-  chao = createSprite(300,190,600,20); 
-chao.addImage("chao", groundImage);
-chao.velocityX=-3; 
-chaoI = createSprite(50,195,20,7);
-chaoI.visible= false
   //adicione dimensão e posição ao trex
   trex.scale = 0.5;
   trex.x = 50
-spike = new Group();
-sky = new Group();
+  //raio de colisão do trex
+  trex.setCollider("rectangle",0,0,60,60);
+  trex.debug = false;
+
+
+  edges = createEdgeSprites();
+  chao = createSprite(300,190,600,20); 
+  chao.addImage("chao", groundImage);
+  chao.velocityX=-3; 
+  chaoI = createSprite(50,195,20,7);
+  chaoI.visible= false
+ 
+  spike = new Group();
+  sky = new Group();
 
 }
 
@@ -53,36 +61,59 @@ sky = new Group();
 function draw(){
   //definir a cor do plano de fundo 
   background("white");
+
+  //exibindo a pontuação
+  textSize(30);
+  text(pontos,500,50);
   
   //registrando a posição y do trex
   //console.log(frameCount)
   if(gamestate == PLAY){
 
+  //pontuação
+  console.log(frameCount);
+  pontos = pontos + Math.round(frameCount/100);
+  //pontos +=
+
   //pular quando tecla de espaço for pressionada
   if(keyDown("space")&& trex.y>=168){
     trex.velocityY = -10;
-
-
-
   }
-  
 
-cactos()
+  //gerar cactos
+  cactos();
 
+  //gravidade
   trex.velocityY = trex.velocityY + 0.5;
   
- //impedir que o trex caia
+  //impedir que o trex caia
   trex.collide(chaoI)
-//reiniciar o solo/ nao deixar ele sair da tela
-if (chao.x <0) {
-chao.x = chao.width/2;
+  
+  //reiniciar o solo/ nao deixar ele sair da tela
+  if (chao.x <0) {
+    chao.x = chao.width/2;
+  }
 
-}
-clouds();
+  //gerar nuvens
+  clouds();
+
+  //colisão do trex com os cactos
+  if(spike.isTouching(trex)){
+    gamestate = END;
   }
- else if(gamestate == END){
- chao.velocityX = 0   
+
   }
+  else if(gamestate == END){
+    chao.velocityX = 0;
+    trex.velocityY = 0;
+    spike.setVelocityXEach(0);
+    sky.setVelocityXEach(0);
+
+    spike.setLifetimeEach(-1);
+    sky.setLifetimeEach(-1);
+    }
+
+  //desenhar os sprites;  
   drawSprites();
 
 
@@ -92,16 +123,16 @@ function clouds (){
 if(frameCount%120==0){
   nuvem = createSprite (575,30,50,50);
   nuvem.velocityX = -2
-nuvem.addImage (nuvemIma);
-//aleatorio=Math.round(random (1,4))
-//console.log(aleatorio);
-nuvem.y= Math.round(random(25,120))
-console.log (trex.depth);
-console.log (nuvem.depth);
-trex.depth = nuvem.depth+1;
+  nuvem.addImage (nuvemIma);
+  //aleatorio=Math.round(random (1,4))
+  //console.log(aleatorio);
+  nuvem.y= Math.round(random(25,120))
+  console.log (trex.depth);
+  console.log (nuvem.depth);
+  trex.depth = nuvem.depth+1;
 
-nuvem.lifetime = 330
-sky.add(nuvem)
+  nuvem.lifetime = 330;
+  sky.add(nuvem);
 }
 }
 
@@ -127,8 +158,10 @@ case 6: cacto.addImage (c6);
 break;
 default : break;
 }
-cacto.scale = 0.5
-spike.add(cacto)
+cacto.scale = 0.5;
+cacto.lifetime=300;
+spike.add(cacto);
+
 
 }
 
