@@ -11,23 +11,26 @@ var sky;
 var PLAY = 1;
 var END = 0;
 var gamestate = PLAY;
-var  gameOver;
+var gameOver;
 var trexCo;
 var pontos=0;
+var somPulo, somMorte, somPontos;
 
 function preload(){
   trex_running = loadAnimation("trex1.png","trex3.png","trex4.png");
   groundImage = loadImage("ground2.png");
   nuvemIma = loadImage("cloud.png");
-c1 = loadImage("obstacle1.png");
-c2 = loadImage("obstacle2.png");
-c3 = loadImage("obstacle3.png");
-c4 = loadImage("obstacle4.png");
-c5 = loadImage("obstacle5.png");
-c6 = loadImage("obstacle6.png");
-trexCo = loadImage("trex_collided.png");
-gameOver = loadImage("gameOver.png");
-
+  c1 = loadImage("obstacle1.png");
+  c2 = loadImage("obstacle2.png");
+  c3 = loadImage("obstacle3.png");
+  c4 = loadImage("obstacle4.png");
+  c5 = loadImage("obstacle5.png");
+  c6 = loadImage("obstacle6.png");
+  trexCo = loadImage("trex_collided.png");
+  gameOver = loadImage("gameOver.png");
+  somPulo = loadSound("jump.mp3");
+  somMorte = loadSound("die.mp3");
+  somPontos = loadSound("checkPoint.mp3");
 }
 
 function setup(){
@@ -44,11 +47,12 @@ function setup(){
   trex.setCollider("rectangle",0,0,60,60);
   trex.debug = false;
 
-
   edges = createEdgeSprites();
+  
   chao = createSprite(300,190,600,20); 
   chao.addImage("chao", groundImage);
   chao.velocityX=-3; 
+  
   chaoI = createSprite(50,195,20,7);
   chaoI.visible= false
  
@@ -78,6 +82,7 @@ function draw(){
   //pular quando tecla de espaço for pressionada
   if(keyDown("space")&& trex.y>=168){
     trex.velocityY = -10;
+    somPulo.play();
   }
 
   //gerar cactos
