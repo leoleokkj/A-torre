@@ -11,26 +11,29 @@ var sky;
 var PLAY = 1;
 var END = 0;
 var gamestate = PLAY;
-var gameOver;
+var  gameOver, gameO;
 var trexCo;
 var pontos=0;
+var restart, recomeçar;
 var somPulo, somMorte, somPontos;
 
 function preload(){
   trex_running = loadAnimation("trex1.png","trex3.png","trex4.png");
   groundImage = loadImage("ground2.png");
   nuvemIma = loadImage("cloud.png");
-  c1 = loadImage("obstacle1.png");
-  c2 = loadImage("obstacle2.png");
-  c3 = loadImage("obstacle3.png");
-  c4 = loadImage("obstacle4.png");
-  c5 = loadImage("obstacle5.png");
-  c6 = loadImage("obstacle6.png");
-  trexCo = loadImage("trex_collided.png");
-  gameOver = loadImage("gameOver.png");
+c1 = loadImage("obstacle1.png");
+c2 = loadImage("obstacle2.png");
+c3 = loadImage("obstacle3.png");
+c4 = loadImage("obstacle4.png");
+c5 = loadImage("obstacle5.png");
+c6 = loadImage("obstacle6.png");
+trexCo = loadImage("trex_collided.png");
+gameOver = loadImage("gameOver.png");
+restart = loadImage ("restart.png");
   somPulo = loadSound("jump.mp3");
   somMorte = loadSound("die.mp3");
   somPontos = loadSound("checkPoint.mp3");
+
 }
 
 function setup(){
@@ -47,17 +50,25 @@ function setup(){
   trex.setCollider("rectangle",0,0,60,60);
   trex.debug = false;
 
+
   edges = createEdgeSprites();
-  
   chao = createSprite(300,190,600,20); 
   chao.addImage("chao", groundImage);
   chao.velocityX=-3; 
-  
   chaoI = createSprite(50,195,20,7);
   chaoI.visible= false
  
   spike = new Group();
   sky = new Group();
+recomeçar = createSprite (width/2,height/2)
+recomeçar.addImage("respawn", restart)
+gameO = createSprite(width/2,height/2 -30)
+gameO.addImage(gameOver)
+gameO.visible = false
+recomeçar.visible = false
+gameO.scale = 0.5
+recomeçar.scale = 0.5
+
 
 }
 
@@ -74,6 +85,8 @@ function draw(){
   //console.log(frameCount)
   if(gamestate == PLAY){
 
+    chao.velocityX=-3 -pontos/100;
+
   //pontuação
   console.log(frameCount);
   pontos = pontos + Math.round(frameCount/100);
@@ -81,7 +94,7 @@ function draw(){
 
   //pular quando tecla de espaço for pressionada
   if(keyDown("space")&& trex.y>=168){
-    trex.velocityY = -10;
+    trex.velocityY = -10 ;
     somPulo.play();
   }
 
@@ -105,7 +118,14 @@ function draw(){
   //colisão do trex com os cactos
   if(spike.isTouching(trex)){
     gamestate = END;
+    somMorte.play();
   }
+if(pontos%1000== 0 && pontos >0){
+
+  somPontos.play();
+
+}
+
 
   }
   else if(gamestate == END){
@@ -113,7 +133,8 @@ function draw(){
     trex.velocityY = 0;
     spike.setVelocityXEach(0);
     sky.setVelocityXEach(0);
-
+    gameO.visible = true
+    recomeçar.visible = true
     spike.setLifetimeEach(-1);
     sky.setLifetimeEach(-1);
     }
@@ -146,7 +167,7 @@ function cactos (){
 if(frameCount%100==0){
 
 cacto = createSprite(590,180,20,50)
-cacto.velocityX = -3
+cacto.velocityX = -3 -pontos /100
 var cn = Math.round(random(1,6))
 switch(cn){
 case 1: cacto.addImage (c1);
