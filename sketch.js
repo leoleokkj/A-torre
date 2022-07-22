@@ -11,38 +11,44 @@ var sky;
 var PLAY = 1;
 var END = 0;
 var gamestate = PLAY;
-var  gameOver, gameO;
+var gameOver, gameO;
+var restart, recomeçar;
 var trexCo;
 var pontos=0;
-var restart, recomeçar;
 var somPulo, somMorte, somPontos;
 
 function preload(){
   trex_running = loadAnimation("trex1.png","trex3.png","trex4.png");
   groundImage = loadImage("ground2.png");
   nuvemIma = loadImage("cloud.png");
-c1 = loadImage("obstacle1.png");
-c2 = loadImage("obstacle2.png");
-c3 = loadImage("obstacle3.png");
-c4 = loadImage("obstacle4.png");
-c5 = loadImage("obstacle5.png");
-c6 = loadImage("obstacle6.png");
-trexCo = loadImage("trex_collided.png");
-gameOver = loadImage("gameOver.png");
-restart = loadImage ("restart.png");
+  c1 = loadImage("obstacle1.png");
+  c2 = loadImage("obstacle2.png");
+  c3 = loadImage("obstacle3.png");
+  c4 = loadImage("obstacle4.png");
+  c5 = loadImage("obstacle5.png");
+  c6 = loadImage("obstacle6.png");
+  trexCo = loadAnimation("trex_collided.png");
+  gameOver = loadImage("gameOver.png");
   somPulo = loadSound("jump.mp3");
   somMorte = loadSound("die.mp3");
   somPontos = loadSound("checkPoint.mp3");
-
+  recomeçar = loadImage("restart.png");
 }
 
 function setup(){
   //criando a tela
   createCanvas(600,200);
+gameO = createSprite(300, 60, 10, 10);
+gameO.addImage(gameOver);
+restart = createSprite(300,100,10,10);
+restart.addImage(recomeçar);
+gameO.scale = 0.7
+restart.scale = 0.7
 
   //criando o trex
   trex = createSprite(50,160,20,50);
   trex.addAnimation("running", trex_running);
+  trex.addAnimation("scared", trexCo);
   //adicione dimensão e posição ao trex
   trex.scale = 0.5;
   trex.x = 50
@@ -50,25 +56,17 @@ function setup(){
   trex.setCollider("rectangle",0,0,60,60);
   trex.debug = false;
 
-
   edges = createEdgeSprites();
+  
   chao = createSprite(300,190,600,20); 
   chao.addImage("chao", groundImage);
-  chao.velocityX=-3; 
+   
+  
   chaoI = createSprite(50,195,20,7);
   chaoI.visible= false
  
   spike = new Group();
   sky = new Group();
-recomeçar = createSprite (width/2,height/2)
-recomeçar.addImage("respawn", restart)
-gameO = createSprite(width/2,height/2 -30)
-gameO.addImage(gameOver)
-gameO.visible = false
-recomeçar.visible = false
-gameO.scale = 0.5
-recomeçar.scale = 0.5
-
 
 }
 
@@ -84,17 +82,18 @@ function draw(){
   //registrando a posição y do trex
   //console.log(frameCount)
   if(gamestate == PLAY){
-
-    chao.velocityX=-3 -pontos/100;
-
+    chao.velocityX=-6-3*pontos/100
+    gameO.visible = false
+    restart.visible = false
+   // chao.velocityX=-3; 
   //pontuação
   console.log(frameCount);
-  pontos = pontos + Math.round(frameCount/100);
+  pontos = pontos + Math.round(getFrameRate()/60);
   //pontos +=
 
   //pular quando tecla de espaço for pressionada
   if(keyDown("space")&& trex.y>=168){
-    trex.velocityY = -10 ;
+    trex.velocityY = -10;
     somPulo.play();
   }
 
@@ -118,14 +117,7 @@ function draw(){
   //colisão do trex com os cactos
   if(spike.isTouching(trex)){
     gamestate = END;
-    somMorte.play();
   }
-if(pontos%1000== 0 && pontos >0){
-
-  somPontos.play();
-
-}
-
 
   }
   else if(gamestate == END){
@@ -133,10 +125,18 @@ if(pontos%1000== 0 && pontos >0){
     trex.velocityY = 0;
     spike.setVelocityXEach(0);
     sky.setVelocityXEach(0);
-    gameO.visible = true
-    recomeçar.visible = true
+trex.changeAnimation("scared", trexCo);
     spike.setLifetimeEach(-1);
     sky.setLifetimeEach(-1);
+gameO.visible = true
+restart.visible = true
+if(mousePressedOver(restart)){
+reset();
+
+
+}
+
+
     }
 
   //desenhar os sprites;  
@@ -144,6 +144,19 @@ if(pontos%1000== 0 && pontos >0){
 
 
 }
+function reset (){
+
+gamestate = PLAY;
+trex.changeAnimation("running", trex_running)
+pontos = 0
+sky.destroyEach();
+spike.destroyEach();
+
+
+}
+
+
+
 function clouds (){
 
 if(frameCount%120==0){
@@ -167,7 +180,7 @@ function cactos (){
 if(frameCount%100==0){
 
 cacto = createSprite(590,180,20,50)
-cacto.velocityX = -3 -pontos /100
+cacto.velocityX = -6-3*pontos/100
 var cn = Math.round(random(1,6))
 switch(cn){
 case 1: cacto.addImage (c1);
