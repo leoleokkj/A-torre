@@ -37,16 +37,17 @@ function preload(){
 
 function setup(){
   //criando a tela
-  createCanvas(600,200);
-gameO = createSprite(300, 60, 10, 10);
-gameO.addImage(gameOver);
-restart = createSprite(300,100,10,10);
-restart.addImage(recomeçar);
-gameO.scale = 0.7
-restart.scale = 0.7
+  //createCanvas(600,200);
+  createCanvas(windowWidth, windowHeight);
+  gameO = createSprite(width/2, height/2 - 40, 10, 10);
+  gameO.addImage(gameOver);
+  restart = createSprite(width/2,height/2,10,10);
+  restart.addImage(recomeçar);
+  gameO.scale = 0.7
+  restart.scale = 0.7
 
   //criando o trex
-  trex = createSprite(50,160,20,50);
+  trex = createSprite(50,height-40,20,50);
   trex.addAnimation("running", trex_running);
   trex.addAnimation("scared", trexCo);
   //adicione dimensão e posição ao trex
@@ -58,11 +59,11 @@ restart.scale = 0.7
 
   edges = createEdgeSprites();
   
-  chao = createSprite(300,190,600,20); 
+  chao = createSprite(width/2,height-10,width,20); 
   chao.addImage("chao", groundImage);
-   
+  chao.scale = 1.3;
   
-  chaoI = createSprite(50,195,20,7);
+  chaoI = createSprite(50,height-5,20,7);
   chaoI.visible= false
  
   spike = new Group();
@@ -92,9 +93,10 @@ function draw(){
   //pontos +=
 
   //pular quando tecla de espaço for pressionada
-  if(keyDown("space")&& trex.y>=168){
+  if((keyDown("space") || touches.length > 0) && trex.y>=168){
     trex.velocityY = -10;
     somPulo.play();
+    touches = [];
   }
 
   //gerar cactos
@@ -116,7 +118,8 @@ function draw(){
 
   //colisão do trex com os cactos
   if(spike.isTouching(trex)){
-    gamestate = END;
+    gamestate = END;  
+    somMorte.play();
   }
 
   }
@@ -125,24 +128,19 @@ function draw(){
     trex.velocityY = 0;
     spike.setVelocityXEach(0);
     sky.setVelocityXEach(0);
-trex.changeAnimation("scared", trexCo);
+    trex.changeAnimation("scared", trexCo);
     spike.setLifetimeEach(-1);
     sky.setLifetimeEach(-1);
-gameO.visible = true
-restart.visible = true
-if(mousePressedOver(restart)){
-reset();
+    gameO.visible = true
+    restart.visible = true
 
-
+    //colocar o touches
+  if(mousePressedOver(restart)){
+    reset();
+  }
 }
-
-
-    }
-
   //desenhar os sprites;  
   drawSprites();
-
-
 }
 function reset (){
 
