@@ -69,6 +69,8 @@ function setup(){
   spike = new Group();
   sky = new Group();
 
+
+
 }
 
 
@@ -78,7 +80,7 @@ function draw(){
 
   //exibindo a pontuação
   textSize(30);
-  text(pontos,500,50);
+  text(pontos,width-100,50);
   
   //registrando a posição y do trex
   //console.log(frameCount)
@@ -93,7 +95,7 @@ function draw(){
   //pontos +=
 
   //pular quando tecla de espaço for pressionada
-  if((keyDown("space") || touches.length > 0) && trex.y>=168){
+  if((keyDown("space") || touches.length > 0) && trex.y>=height-32){
     trex.velocityY = -10;
     somPulo.play();
     touches = [];
@@ -135,8 +137,10 @@ function draw(){
     restart.visible = true
 
     //colocar o touches
-  if(mousePressedOver(restart)){
+  if(mousePressedOver(restart)||touches.length>0){
     reset();
+touches = []
+
   }
 }
   //desenhar os sprites;  
@@ -158,17 +162,17 @@ spike.destroyEach();
 function clouds (){
 
 if(frameCount%120==0){
-  nuvem = createSprite (575,30,50,50);
+  nuvem = createSprite (width-25,height/2,50,50);
   nuvem.velocityX = -2
   nuvem.addImage (nuvemIma);
   //aleatorio=Math.round(random (1,4))
   //console.log(aleatorio);
-  nuvem.y= Math.round(random(25,120))
+  nuvem.y= Math.round(random(height/2-100,height/2+100))
   console.log (trex.depth);
   console.log (nuvem.depth);
   trex.depth = nuvem.depth+1;
 
-  nuvem.lifetime = 330;
+  nuvem.lifetime = 1000;
   sky.add(nuvem);
 }
 }
@@ -177,7 +181,7 @@ function cactos (){
 
 if(frameCount%100==0){
 
-cacto = createSprite(590,180,20,50)
+cacto = createSprite(width-10,height-20,20,50)
 cacto.velocityX = -6-3*pontos/100
 var cn = Math.round(random(1,6))
 switch(cn){
